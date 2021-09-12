@@ -4,15 +4,20 @@ import {Player} from "./player/Player";
 import {getPlayers} from "../../api/api";
 import {useEffect, useState} from "react";
 export const PlayersTable = (props) => {
-    const sortPlayers = (sortType) => {
-        console.log(sortType);
-    }
+
     const [players, setPlayers] = useState(0);
-    const [filterType, setFilterType] = useState(0);
+    const [sortType, setSortType] = useState(0);
+    const [sortOrder, setSortOrder] = useState('ASC');
     useEffect(()=>{
         setPlayers(getPlayers());
     }, []);
-
+    useEffect(()=>{
+        if(sortType){
+            const sortedPlayers = (sortOrder === 'ASC') ? players.slice().sort((a,b) => a[sortType] > b[sortType] ? 1 : -1) :
+                players.slice().sort((a,b) => a[sortType] < b[sortType] ? 1 : -1);
+            setPlayers(sortedPlayers);
+        }
+    }, [sortType, sortOrder]);
     return (
         <div className={classes.table}>
             <div className={classes.header}>
@@ -20,10 +25,13 @@ export const PlayersTable = (props) => {
 
                 </div>
                 <div className={classes.table__head}>
-                    <div className={classes.table__head_item} onClick={(e) => sortPlayers('id')}>ID</div>
-                    <div className={classes.table__head_item} onClick={(e) => sortPlayers('name')}>Имя</div>
-                    <div className={classes.table__head_item} onClick={(e) => sortPlayers('level')}>Уровень</div>
-                    <div className={classes.table__head_item} onClick={(e) => sortPlayers('online')}>Онлайн</div>
+                    <div className={classes.table__head_item} onClick={(e) => {
+                        setSortType('id');
+                        setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
+                    }}>ID</div>
+                    <div className={classes.table__head_item} onClick={(e) => setSortType('name')}>Имя</div>
+                    <div className={classes.table__head_item} onClick={(e) => setSortType('level')}>Уровень</div>
+                    <div className={classes.table__head_item} onClick={(e) => setSortType('online')}>Онлайн</div>
                 </div>
                 <Scrollbar style={{ height: 520 }} >
                     <div className={classes.table__body}>
@@ -31,7 +39,6 @@ export const PlayersTable = (props) => {
                     </div>
                 </Scrollbar>
             </div>
-
         </div>
     )
 }
