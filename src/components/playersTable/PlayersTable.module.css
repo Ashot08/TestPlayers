@@ -1,0 +1,24 @@
+.header{
+
+}
+.table{
+    background-color: #e2e2e2;
+    padding: 4px;
+}
+.table__head{
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr 1fr;
+    background-color: #c6c6c6;
+}
+.table__head_item{
+    padding: 10px 5px;
+}
+.table__body{
+    display: grid;
+    grid-gap: 4px;
+    padding: 10px 0;
+}
+.player{
+    background-color: #d3d3d3;
+    padding: 10px;
+}
