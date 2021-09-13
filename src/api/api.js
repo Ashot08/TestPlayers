@@ -39,5 +39,5 @@ export const getPlayers = () => [
     {"id": 37, "name": "Leslie", "level": 0, "online": false},
     {"id": 38, "name": "Kathryn", "level": 2, "online": true},
     {"id": 39, "name": "Frederick", "level": 0, "online": false},
-    {"id": 40, "name": "Kathryn", "level": 1, "online": false}
+    {"id": 40, "name": "Kathryn", "level": 1, "online": false},
 ]

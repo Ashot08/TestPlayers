@@ -5,19 +5,23 @@ import {getPlayers} from "../../api/api";
 import {useEffect, useState} from "react";
 export const PlayersTable = (props) => {
 
-    const [players, setPlayers] = useState(0);
-    const [sortType, setSortType] = useState(0);
-    const [sortOrder, setSortOrder] = useState('ASC');
+    const [players, setPlayers] = useState([]);
+    const [sortType, setSortType] = useState({sortBy: 'id', order: 'ASC', isActive: false});
+
     useEffect(()=>{
         setPlayers(getPlayers());
     }, []);
     useEffect(()=>{
-        if(sortType){
-            const sortedPlayers = (sortOrder === 'ASC') ? players.slice().sort((a,b) => a[sortType] > b[sortType] ? 1 : -1) :
-                players.slice().sort((a,b) => a[sortType] < b[sortType] ? 1 : -1);
-            setPlayers(sortedPlayers);
+        if(sortType.isActive){
+            const sortedPlayers = players.sort((a,b) =>{
+                if(typeof a[sortType.sortBy] === 'number'){
+                    return a[sortType.sortBy] > b[sortType.sortBy] ? 1 : -1
+                }
+                return a[sortType.sortBy].toString().toLowerCase() > b[sortType.sortBy].toString().toLowerCase() ? 1 : -1
+            });
+            setPlayers([...sortedPlayers]);
         }
-    }, [sortType, sortOrder]);
+    }, [sortType]);
     return (
         <div className={classes.table}>
             <div className={classes.header}>
@@ -25,13 +29,10 @@ export const PlayersTable = (props) => {
 
                 </div>
                 <div className={classes.table__head}>
-                    <div className={classes.table__head_item} onClick={(e) => {
-                        setSortType('id');
-                        setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
-                    }}>ID</div>
-                    <div className={classes.table__head_item} onClick={(e) => setSortType('name')}>Имя</div>
-                    <div className={classes.table__head_item} onClick={(e) => setSortType('level')}>Уровень</div>
-                    <div className={classes.table__head_item} onClick={(e) => setSortType('online')}>Онлайн</div>
+                    <div className={classes.table__head_item} onClick={(e) => setSortType({sortBy: 'id', order: 'ASC', isActive: true})}>ID</div>
+                    <div className={classes.table__head_item} onClick={(e) => setSortType({sortBy: 'name', order: 'ASC', isActive: true})}>Имя</div>
+                    <div className={classes.table__head_item} onClick={(e) => setSortType({sortBy: 'level', order: 'ASC', isActive: true})}>Уровень</div>
+                    <div className={classes.table__head_item} onClick={(e) => setSortType({sortBy: 'online', order: 'ASC', isActive: true})}>Онлайн</div>
                 </div>
                 <Scrollbar style={{ height: 520 }} >
                     <div className={classes.table__body}>
