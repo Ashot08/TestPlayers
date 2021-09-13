@@ -1,26 +1,36 @@
 import classes from "./PlayersTable.module.css";
-import { Scrollbar } from "react-scrollbars-custom";
+import {Scrollbar} from "react-scrollbars-custom";
 import {Player} from "./player/Player";
 import {getPlayers} from "../../api/api";
 import {useEffect, useState} from "react";
 import {SortingButton} from "./sortingButton/sortingButton";
+import {TableHead} from "./tableHead/TableHead";
+
+function compare(a, b, order) {
+    if(typeof a === 'string'){
+        a = a.toLowerCase();
+        b = b.toLowerCase();
+    }
+    if (order === 'DESC') {
+        return a < b ? 1 : -1
+    } else {
+        return a > b ? 1 : -1
+    }
+}
+
 export const PlayersTable = (props) => {
 
     const [players, setPlayers] = useState([]);
     const [sortType, setSortType] = useState({sortBy: 'id', order: 'ASC', isActive: false});
 
-    useEffect(()=>{
+    useEffect(() => {
         setPlayers(getPlayers());
     }, []);
-    useEffect(()=>{
-        if(sortType.isActive){
-            const sortedPlayers = players.sort((a,b) =>{
-                if(typeof a[sortType.sortBy] === 'number'){
-                    return a[sortType.sortBy] > b[sortType.sortBy] ? 1 : -1
-                }
-                return a[sortType.sortBy].toString().toLowerCase() > b[sortType.sortBy].toString().toLowerCase() ? 1 : -1
+    useEffect(() => {
+        if (sortType.isActive) {
+            const sortedPlayers = players.sort((a, b) => {
+                return compare(a[sortType.sortBy], b[sortType.sortBy], sortType.order);
             });
-            console.log(sortType.order)
             setPlayers([...sortedPlayers]);
         }
     }, [sortType]);
@@ -30,27 +40,13 @@ export const PlayersTable = (props) => {
                 <div>
 
                 </div>
-                <div className={classes.table__head}>
-                    <div className={classes.table__head_item}>
-                        ID
-                        <SortingButton title={'id'} clickHandler={setSortType} />
-                    </div>
-                    <div className={classes.table__head_item}>
-                        Имя
-                        <SortingButton title={'name'} clickHandler={setSortType} />
-                    </div>
-                    <div className={classes.table__head_item}>
-                        Уровень
-                        <SortingButton title={'level'} clickHandler={setSortType} />
-                    </div>
-                    <div className={classes.table__head_item}>
-                        Онлайн
-                        <SortingButton title={'online'} clickHandler={setSortType} />
-                    </div>
-                </div>
-                <Scrollbar style={{ height: 520 }} >
+
+                <TableHead setSortType={setSortType} />
+
+                <Scrollbar style={{height: 520}}>
                     <div className={classes.table__body}>
-                        {players ? players.map(p=><Player key={p.id} id={p.id} name={p.name} level={p.level} online={p.online ? 'yes' : 'no'} />) : 'not found' }
+                        {players.length ? players.map(p => <Player key={p.id} id={p.id} name={p.name} level={p.level}
+                                                            online={p.online ? 'yes' : 'no'}/>) : 'not found'}
                     </div>
                 </Scrollbar>
             </div>
