@@ -3,6 +3,7 @@ import { Scrollbar } from "react-scrollbars-custom";
 import {Player} from "./player/Player";
 import {getPlayers} from "../../api/api";
 import {useEffect, useState} from "react";
+import {SortingButton} from "./sortingButton/sortingButton";
 export const PlayersTable = (props) => {
 
     const [players, setPlayers] = useState([]);
@@ -19,6 +20,7 @@ export const PlayersTable = (props) => {
                 }
                 return a[sortType.sortBy].toString().toLowerCase() > b[sortType.sortBy].toString().toLowerCase() ? 1 : -1
             });
+            console.log(sortType.order)
             setPlayers([...sortedPlayers]);
         }
     }, [sortType]);
@@ -29,10 +31,22 @@ export const PlayersTable = (props) => {
 
                 </div>
                 <div className={classes.table__head}>
-                    <div className={classes.table__head_item} onClick={(e) => setSortType({sortBy: 'id', order: 'ASC', isActive: true})}>ID</div>
-                    <div className={classes.table__head_item} onClick={(e) => setSortType({sortBy: 'name', order: 'ASC', isActive: true})}>Имя</div>
-                    <div className={classes.table__head_item} onClick={(e) => setSortType({sortBy: 'level', order: 'ASC', isActive: true})}>Уровень</div>
-                    <div className={classes.table__head_item} onClick={(e) => setSortType({sortBy: 'online', order: 'ASC', isActive: true})}>Онлайн</div>
+                    <div className={classes.table__head_item}>
+                        ID
+                        <SortingButton title={'id'} clickHandler={setSortType} />
+                    </div>
+                    <div className={classes.table__head_item}>
+                        Имя
+                        <SortingButton title={'name'} clickHandler={setSortType} />
+                    </div>
+                    <div className={classes.table__head_item}>
+                        Уровень
+                        <SortingButton title={'level'} clickHandler={setSortType} />
+                    </div>
+                    <div className={classes.table__head_item}>
+                        Онлайн
+                        <SortingButton title={'online'} clickHandler={setSortType} />
+                    </div>
                 </div>
                 <Scrollbar style={{ height: 520 }} >
                     <div className={classes.table__body}>
