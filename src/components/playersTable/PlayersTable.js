@@ -4,55 +4,72 @@ import {Player} from "./player/Player";
 import {getPlayers} from "../../api/api";
 import {useEffect, useState} from "react";
 import {TableHead} from "./tableHead/TableHead";
+import {Popup} from "./popup/Popup";
 
 export const PlayersTable = (props) => {
-
     const [players, setPlayers] = useState([]);
     const [sortType, setSortType] = useState({sortBy: 'id', order: 'ASC'});
-    const [filter, setFilter] = useState({searchField: '', isOnline: false});
-
+    const [filter, setFilter] = useState({searchField: '', isOnline: false, excludedPlayers: []});
+    const [popup, setPopup] = useState({open: false, data: {}});
+    const addExcludedPlayer = (id) => {
+        setFilter({
+            ...filter,
+            excludedPlayers: [...filter.excludedPlayers, id]
+        })
+    }
     useEffect(() => {
-            const sortedPlayers = getPlayers().sort((a, b) => {
-                return compare(a[sortType.sortBy], b[sortType.sortBy], sortType.order);
-            });
-            setPlayers(filterPlayers([...sortedPlayers], filter));
+        const sortedPlayers = getPlayers().sort((a, b) => {
+            return compare(a[sortType.sortBy], b[sortType.sortBy], sortType.order);
+        });
+        setPlayers(filterPlayers([...sortedPlayers], filter));
 
     }, [sortType, filter]);
 
     return (
-        <div className={classes.table}>
-            <div className={classes.header}>
-                <div>
-                    <form onReset ={(e) => setFilter({searchField: '', isOnline: false})}
-
-                          onInput={(e) =>
-                              setFilter({
-                                  ...filter,
-                                  [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value,
-                              })
-                          }>
-                        <label>
-                            Имя
-                            <input name={'searchField'} type={'text'}/>
-                        </label>
-                        <label>
-                            Онлайн
-                            <input name={'isOnline'} type={'checkbox'}/>
-                        </label>
-                        <button name={'reset'} type={'reset'}>Показать всех</button>
-                    </form>
-                </div>
-
-                <TableHead setSortType={setSortType}/>
-
-                <Scrollbar style={{height: 520}}>
-                    <div className={classes.table__body}>
-                        {players.length ? players.map(p => <Player key={p.id} id={p.id} name={p.name} level={p.level}
-                                                                   online={p.online} useOnClickOutside={useOnClickOutside} />) : 'not found'}
+        <>
+            {popup.open && <Popup data={popup.data} setPopup={setPopup}/>}
+            <div className={classes.table}>
+                <div className={classes.header}>
+                    <div>
+                        <form onReset={(e) => setFilter({searchField: '', isOnline: false, excludedPlayers: []})}
+                              onInput={(e) =>
+                                  setFilter({
+                                      ...filter,
+                                      [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value,
+                                  })
+                              }>
+                            <label>
+                                Имя
+                                <input name={'searchField'} type={'text'}/>
+                            </label>
+                            <label>
+                                Онлайн
+                                <input name={'isOnline'} type={'checkbox'}/>
+                            </label>
+                            <button name={'reset'} type={'reset'}>Показать всех</button>
+                        </form>
                     </div>
-                </Scrollbar>
+
+                    <TableHead setSortType={setSortType}/>
+
+                    <Scrollbar style={{height: 520}}>
+                        <div className={classes.table__body}>
+                            {players.length ? players.map(p =>
+                                <Player
+                                    key={p.id}
+                                    id={p.id}
+                                    name={p.name}
+                                    level={p.level}
+                                    online={p.online}
+                                    setPopup={setPopup}
+                                    addExcludedPlayer={addExcludedPlayer}
+                                />) : 'not found'}
+                        </div>
+                    </Scrollbar>
+                </div>
             </div>
-        </div>
+        </>
+
     )
 }
 
@@ -70,6 +87,7 @@ function compare(a, b, order) {
 }
 
 function filterPlayers(players, args) {
+    players = players.filter(p => !args.excludedPlayers.includes(p.id));
     if (args.isOnline) {
         return players.filter(p => (
             p.online === args.isOnline && p.name.toLowerCase().includes(args.searchField.toLowerCase())
@@ -80,7 +98,7 @@ function filterPlayers(players, args) {
     ))
 }
 
-function useOnClickOutside(ref, handler) {
+export function useOnClickOutside(ref, handler) {
     useEffect(
         () => {
             const listener = (event) => {
