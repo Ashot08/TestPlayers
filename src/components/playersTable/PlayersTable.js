@@ -8,24 +8,17 @@ import {TableHead} from "./tableHead/TableHead";
 export const PlayersTable = (props) => {
 
     const [players, setPlayers] = useState([]);
-    const [sortType, setSortType] = useState({sortBy: 'id', order: 'ASC', isActive: false});
+    const [sortType, setSortType] = useState({sortBy: 'id', order: 'ASC'});
     const [filter, setFilter] = useState({searchField: '', isOnline: false});
 
     useEffect(() => {
-        setPlayers(getPlayers());
-    }, []);
-    useEffect(() => {
-        if (sortType.isActive) {
-            const sortedPlayers = players.sort((a, b) => {
+            const sortedPlayers = getPlayers().sort((a, b) => {
                 return compare(a[sortType.sortBy], b[sortType.sortBy], sortType.order);
             });
-            setPlayers([...sortedPlayers]);
-        }
-    }, [sortType]);
-    useEffect(() => {
-        setPlayers(filterPlayers(getPlayers(), filter));
-        setSortType({...sortType});
-    }, [filter]);
+            setPlayers(filterPlayers([...sortedPlayers], filter));
+
+    }, [sortType, filter]);
+
     return (
         <div className={classes.table}>
             <div className={classes.header}>
@@ -55,7 +48,7 @@ export const PlayersTable = (props) => {
                 <Scrollbar style={{height: 520}}>
                     <div className={classes.table__body}>
                         {players.length ? players.map(p => <Player key={p.id} id={p.id} name={p.name} level={p.level}
-                                                                   online={p.online ? 'yes' : 'no'}/>) : 'not found'}
+                                                                   online={p.online} useOnClickOutside={useOnClickOutside} />) : 'not found'}
                     </div>
                 </Scrollbar>
             </div>
@@ -85,4 +78,25 @@ function filterPlayers(players, args) {
     return players.filter(p => (
         p.name.toLowerCase().includes(args.searchField.toLowerCase())
     ))
+}
+
+function useOnClickOutside(ref, handler) {
+    useEffect(
+        () => {
+            const listener = (event) => {
+                // Do nothing if clicking ref's element or descendent elements
+                if (!ref.current || ref.current.contains(event.target)) {
+                    return;
+                }
+                handler(event);
+            };
+            document.addEventListener("mousedown", listener);
+            document.addEventListener("touchstart", listener);
+            return () => {
+                document.removeEventListener("mousedown", listener);
+                document.removeEventListener("touchstart", listener);
+            };
+        },
+        [ref, handler]
+    );
 }

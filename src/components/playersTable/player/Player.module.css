@@ -3,4 +3,5 @@
     grid-template-columns: 1fr 2fr 2fr 1fr;
     background-color: #d3d3d3;
     padding: 10px;
+    position: relative;
 }
